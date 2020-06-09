@@ -1,0 +1,124 @@
+<!DOCTYPE HTML>
+<!--
+	Projection by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<style>
+    .button.tiny {
+        border-radius: 10px;
+		font-size: .66em;
+		padding: 0 1em;
+		line-height: 25px;
+        max-height: 25px;
+		box-shadow: inset 0 0 0 2px #6cc091;
+    }
+    .cardlist {
+        display: None;
+    }
+</style>
+<html>
+	<head>
+		<title>Cardshare Hand View</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="/static/assets/css/main.css" />
+	</head>
+	<body class="subpage">
+
+		<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="index" class="logo"><strong>CardShare</strong> by Chase</a>
+					<nav id="nav">
+						<a href="/">Home</a>
+						<a href="join">Join Game</a>
+						<a href="create">Create Game</a>
+					</nav>
+					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+				</div>
+			</header>
+
+		<!-- Three -->
+			<section id="three" class="wrapper">
+				<div class="inner">
+					<header class="align-center">
+						<h2>Debug View</h2>
+						<p>Game Count: {{ games.keys() | length }}</p>
+					</header>
+                    {% for gamename, game in games.items() %}
+                    <div class="row uniform">
+                        <div class="8u"><h4><span class="icon fa-chevron-down minimizer" style="font-size:.66em; color:#6cc091"></span> {{ gamename }}: {{ game.players.keys() | length }} players</h4></div>
+                        <div class="4u" style="text-align:right"><a class="button">Delete</a></div>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table id="{{ gamename }}">
+                            <thead>
+                                <tr>
+                                    <th>Player</th>
+                                    <th style="text-align: right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for playername, player in game.players.items() %}
+                                <tr>
+                                    <td>{{ playername }}</td>
+                                    <td style="text-align: right"><a class="button tiny cardlisttoggle">Cardlist</a> <input type="button" class="button tiny" value="Reset"> <input type="button" class="button tiny" value="Kick">
+                                        {% for hand in player.hand_cards.keys() %}
+                                            <p class="cardlist" style="text-align: left"><strong>{{ hand }}</strong> (<span class="cardcounter">{{ player.hand_cards[hand] | length }}</span>)<br>
+                                            {% for card in player.hand_cards[hand] %} <a class="button tiny delcard" id="{{ card.cardid }}">{{ card.name }}</a>{% endfor %}</p>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endfor %}
+				</div>
+
+			</section>
+
+		<!-- Footer -->
+			<footer id="footer">
+                <div class="copyright">
+                    &copy; Chase Grund. Images: <a href="https://unsplash.com">Unsplash</a>.
+                </div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="/static/assets/js/jquery.min.js"></script>
+			<script src="/static/assets/js/skel.min.js"></script>
+			<script src="/static/assets/js/util.js"></script>
+			<script src="/static/assets/js/main.js"></script>
+
+            <script>
+                $(document).ready(function(){
+                  $("a.cardlisttoggle").click(function(){
+                    $(this).siblings("p.cardlist").slideToggle();
+                  });
+                  $("span.minimizer").click(function(){
+                      $(this).toggleClass("fa-chevron-down").toggleClass("fa-chevron-right")
+                      $(this).closest(".row").next("div.table-wrapper").slideToggle();
+                  });
+                  $("a.delcard").click(function(){
+                      var refobj = $(this);
+                      var data = {
+                          "game_key": $(this).closest("table").attr("id"),
+                          "player": $(this).closest("td").prev("td").text(),
+                          "cardid": $(this).attr("id"),
+                          "action": 'discard'
+                      };
+                      $.post("/cardaction", data, function(respdata) {
+                          var cardcount = parseInt($(refobj).siblings("span.cardcounter").text());
+                          cardcount--;
+                          $(refobj).siblings("span.cardcounter").text(cardcount);
+                          $(refobj).remove();
+                      });
+                  });
+                });
+            </script>
+
+	</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<!--
+	Projection by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<style>
+    .button.tiny {
+        border-radius: 10px;
+		font-size: .66em;
+		padding: 0 1em;
+		line-height: 25px;
+        max-height: 25px;
+		box-shadow: inset 0 0 0 2px #6cc091;
+    }
+    .desc {
+        display: None;
+    }
+
+    .menu {
+        position: absolute;
+        display: inline-block;
+    }
+    .menu-content {
+        display: none;
+        padding: 5px 5px;
+        border-radius: 20px;
+        position: absolute;
+        text-align: center;
+        background-color: #ffffff;
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        border: 2px solid #6cc091;
+        z-index: 99;
+    }
+
+</style>
+<html>
+	<head>
+		<title>Cardshare Hand View</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="/static/assets/css/main.css" />
+	</head>
+	<body class="subpage">
+
+		<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="index" class="logo"><strong>CardShare</strong> by Chase</a>
+					<nav id="nav">
+						<a href="/">Home</a>
+						<a href="join">Join Game</a>
+						<a href="create">Create Game</a>
+					</nav>
+					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+				</div>
+			</header>
+
+		<!-- Three -->
+			<section id="three" class="wrapper">
+				<div class="inner">
+					<header class="align-center">
+						<h2>{{ player.name }}</h2>
+						<p>GameID: {{  game.game_key }}</p>
+					</header>
+                    {% for deckname in game.card_decks.keys() %}
+                    <div class="handdisplay">
+                        <div class="row uniform" id="{{ deckname }}-label">
+                            <div class="8u"><h4><span class="icon fa-chevron-down minimizer" style="font-size:.66em; color:#6cc091"></span> {{ deckname }} Cards: <span class="cardcounter">{{ player.hand_cards[deckname] | length }}</span></h4></div>
+                            <div class="4u" style="text-align:right"><a class="button drawbutton" id="{{ deckname }}">Draw</a></div>
+                        </div>
+
+                        <div class="table-wrapper" id="{{ deckname }}-wrapper">
+                            <table id="{{ deckname }}-table">
+                                <thead>
+                                    <tr>
+                                        <th>Card</th>
+                                        <th style="text-align: right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for card in player.hand_cards[deckname] %}
+                                    <tr>
+                                        <td>{{ card.name }}</td>
+                                        <td style="text-align: right; padding-right: 80px;">
+                                            <a class="button tiny desctoggle">Description</a> <a class="button tiny discard" id="{{ card.cardid }}">Discard</a>&nbsp;
+                                            <div class="menu">
+                                                <a class="button tiny tradecard">Trade <i class="icon fa-caret-down"></i></a>
+                                                <div class="menu-content">Trade To:<br><a class="button tiny playerchoose">Player 1</a><br><a class="button tiny playerchoose">Player 2</a><br><a class="button tiny playerchoose">Player 3</a><br><a class="button tiny playerchoose">Player 4</a></div>
+                                            </div>
+                                            <p class="desc" style="margin-right: -60px;">{{ card.description }}</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    {% endfor %}
+				</div>
+
+			</section>
+
+		<!-- Footer -->
+			<footer id="footer">
+                <div class="copyright">
+                    &copy; Chase Grund. Images: <a href="https://unsplash.com">Unsplash</a>.
+                </div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="/static/assets/js/jquery.min.js"></script>
+			<script src="/static/assets/js/skel.min.js"></script>
+			<script src="/static/assets/js/util.js"></script>
+			<script src="/static/assets/js/main.js"></script>
+			<script src="/static/assets/js/mustache.min.js"></script>
+            <script id="card-row-template" type = "text/template">
+                <tr>
+                    <td>||cardname||</td>
+                    <td style="text-align: right; padding-right: 80px;">
+                        <a class="button tiny desctoggle">Description</a> <a class="button tiny discard" id="||cardid||">Discard</a>&nbsp;
+                        <div class="menu">
+                            <a class="button tiny tradecard">Trade <i class="icon fa-caret-down"></i></a>
+                            <div class="menu-content">Trade To:</div>
+                        </div>
+                        <p class="desc" style="margin-right: -60px;">||carddescription||</p>
+                    </td>
+                </tr>
+            </script>
+            <script id="player-list-template" type = "text/template">
+                ||#players||
+                <br><a class="button tiny playerchoose">||name||</a>
+                ||/players||
+            </script>
+
+            <script>
+                $(document).ready(function(){
+                    Mustache.tags = [ '||', '||'];
+                    $(document).on('click', 'span.minimizer', function() {
+                        $(this).toggleClass("fa-chevron-down").toggleClass("fa-chevron-right")
+                        $(this).closest(".row").next("div.table-wrapper").slideToggle();
+                    });
+                    $(document).on('click', 'a.desctoggle', function() {
+                        $(this).siblings("p.desc").slideToggle();
+                    });
+                    $(document).on('click', 'a.tradecard', function() {
+                        var refobj = $(this);
+                        $.post("/queryplayers", data, function(respdata) {
+                            var templ = $("#player-list-template").html();
+                            var html = Mustache.render(templ, {players: respdata.player_name_list});
+                            $(refobj).next('.menu-content').append(html);
+                        });
+                        $(this).siblings("div.menu-content").toggle();
+                    });
+                    $(document).on('click', 'a.discard', function() {
+                        var refobj = $(this);
+                        var cardcounter = $(this).closest("div.handdisplay").find("span.cardcounter")
+                        var data = {
+                            "cardid": $(this).attr("id"),
+                            "action": 'discard'
+                        };
+                        $.post("/cardaction", data, function(respdata) {
+                            var cardcount = parseInt(cardcounter.text());
+                            cardcount--;
+                            cardcounter.text(cardcount);
+                            $(refobj).closest("tr").remove();
+                        });
+                    });
+                    $(document).on('click', 'a.drawbutton', function() {
+                        var deck_name = $(this).attr('id');
+                        var sel =  "#"+deck_name+"-table";
+                        var cardcounter = $(this).closest("div.row").find("span.cardcounter")
+                        $.post("/drawcard", {"deck_name": deck_name}, function(respdata) {
+                            var cardcount = parseInt(cardcounter.text());
+                            cardcount++;
+                            cardcounter.text(cardcount);
+                            var templ = $("#card-row-template").html()
+                            var html = Mustache.render(templ, {cardname: respdata.name, cardid: respdata.cardid, carddescription: respdata.description });
+                            $(sel).find('tbody').append(html);
+                        });
+                    });
+                });
+            </script>
+
+	</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<!--
+	Projection by TEMPLATED
+	templated.co @templatedco
+	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
+-->
+<html>
+	<head>
+		<title>Join Card Game</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="/static/assets/css/main.css" />
+	</head>
+	<body>
+
+		<!-- Header -->
+			<header id="header">
+				<div class="inner">
+					<a href="/" class="logo"><strong>CardShare</strong> by Chase</a>
+					<nav id="nav">
+						<a href="/">Home</a>
+						<a href="join">Join Game</a>
+						<a href="create">Create Game</a>
+					</nav>
+					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+				</div>
+			</header>
+
+		<!-- Banner -->
+			<section id="banner">
+				<div class="inner">
+					<header>
+						<h1>Create New Game</h1>
+					</header>
+                    <form action="#" method="post">
+                        <div class="flex-2 ">
+                            <div>
+                                <span class="icon fa-asterisk"></span>
+                                <h3>Game Settings</h3>
+                            </div>
+                            <p>
+                            {% if error_msg %}
+                            <p><span class="icon fa-exclamation-triangle" style="color:tomato; font-size: 1em"></span> {{ error_msg }}</p>
+                            {% endif %}
+                            <div>
+                                <div class="row uniform align-center">
+                                    <div class="2u"></div>
+                                    <div class="8u">
+                                        <label class="label bright" for="name">Your Name</label><input name="name" id="name" type="text" placeholder="Name">
+                                    </div>
+                                    <div class="2u"></div>
+                                    <div class="6u 12u$(xsmall)">
+                                        <input type="radio" id="fourplayer" value="4" name="game-size" checked>
+                                        <label for="fourplayer">2-4 Players</label>
+                                    </div>
+                                    <div class="6u 12u$(xsmall)">
+                                        <input type="radio" id="sixplayer" value="6" name="game-size">
+                                        <label for="sixplayer">5-6 Players</label>
+                                    </div>
+                                </div>
+                            </div>
+                            </p>
+                        </div>
+                        <footer>
+                            <input value="Start Game" class="button" type="submit">
+                        </footer>
+                    </form>
+				</div>
+			</section>
+
+		<!-- Footer -->
+			<footer id="footer">
+                <div class="copyright">
+                    &copy; Chase Grund. Images: <a href="https://unsplash.com">Unsplash</a>.
+                </div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="/static/assets/js/jquery.min.js"></script>
+			<script src="/static/assets/js/skel.min.js"></script>
+			<script src="/static/assets/js/util.js"></script>
+			<script src="/static/assets/js/main.js"></script>
+	</body>
+</html>
