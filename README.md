@@ -1,4 +1,4 @@
-Cardshare
+## Cardshare
 
 A simple web application enabling remote sharing of decks of cards for playing board games over screen share.  Games are
  implemented in a modular fashion, allowing a new game to be defined easily and enabling all games to use a common

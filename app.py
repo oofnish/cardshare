@@ -160,7 +160,7 @@ def handle_join():
         player_name = request.form.get('name')
         game_id = request.form.get('gameid')
         try:
-            add_new_player_to_game(player_name, game_id)
+            add_new_player_to_game(game_id, player_name)
             return redirect(url_for('hand_view'))
         except CardShareException as cse:
             error_msg = str(cse)

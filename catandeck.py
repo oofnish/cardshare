@@ -5,9 +5,9 @@ class CatanDeckNames:
     DEVELOPMENT = 'Development'
     CLAY = 'Clay'
     ROCK = 'Rock'
+    SHEEP = 'Sheep'
     WHEAT = 'Wheat'
     WOOD = 'Wood'
-    WOOL = 'Wool'
 
 
 class CatanDevelopmentNames:

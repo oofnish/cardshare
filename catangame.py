@@ -20,9 +20,9 @@ class CatanGame(Game):
         self.add_deck(CatanDeckNames.DEVELOPMENT, CatanDeck(max_players))
         self.add_deck(CatanDeckNames.CLAY, CatanResourceDeck(CatanDeckNames.CLAY))
         self.add_deck(CatanDeckNames.ROCK, CatanResourceDeck(CatanDeckNames.ROCK))
+        self.add_deck(CatanDeckNames.SHEEP, CatanResourceDeck(CatanDeckNames.SHEEP))
         self.add_deck(CatanDeckNames.WHEAT, CatanResourceDeck(CatanDeckNames.WHEAT))
         self.add_deck(CatanDeckNames.WOOD, CatanResourceDeck(CatanDeckNames.WOOD))
-        self.add_deck(CatanDeckNames.WOOL, CatanResourceDeck(CatanDeckNames.WOOL))
 
 
 # register the game type with the game factory

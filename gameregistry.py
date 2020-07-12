@@ -11,7 +11,7 @@ class GameRegistry:
     def __init__(self):
         self._gametypes = {}
 
-    def register_game_type(self, gametype: str, gameclass):
+    def register_game_type(self, gametype, gameclass):
         print('registering {}'.format(gametype))
         """Register a game type based on a string name.  The game class should be a class derived from Game"""
         self._gametypes[gametype] = gameclass
