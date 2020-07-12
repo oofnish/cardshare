@@ -158,7 +158,7 @@ def handle_join():
     error_msg = None
     if request.method == 'POST':
         player_name = request.form.get('name')
-        game_id = request.form.get('gameid')
+        game_id = request.form.get('gameid').upper()
         try:
             add_new_player_to_game(game_id, player_name)
             return redirect(url_for('hand_view'))

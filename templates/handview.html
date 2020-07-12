@@ -66,7 +66,7 @@
                     {% for deckname in game.card_decks.keys() %}
                     <div class="handdisplay">
                         <div class="row uniform" id="{{ deckname }}-label">
-                            <div class="8u"><h4><span class="icon fa-chevron-down minimizer" style="font-size:.66em; color:#6cc091"></span> {{ deckname }} Cards: <span class="cardcounter">{{ player.hand_cards[deckname] | length }}</span></h4></div>
+                            <div class="8u"><h4 class="minimizer"><span class="icon fa-chevron-down expand-indicator" style="font-size:.66em; color:#6cc091"></span> {{ deckname }} Cards: <span class="cardcounter">{{ player.hand_cards[deckname] | length }}</span></h4></div>
                             <div class="4u" style="text-align:right"><a class="button drawbutton" id="{{ deckname }}">Draw</a></div>
                         </div>
 
@@ -136,8 +136,8 @@
             <script>
                 $(document).ready(function(){
                     Mustache.tags = [ '||', '||'];
-                    $(document).on('click', 'span.minimizer', function() {
-                        $(this).toggleClass("fa-chevron-down").toggleClass("fa-chevron-right")
+                    $(document).on('click', 'h4.minimizer', function() {
+                        $(this).find("span.expand-indicator").toggleClass("fa-chevron-down").toggleClass("fa-chevron-right")
                         $(this).closest(".row").next("div.table-wrapper").slideToggle();
                     });
                     $(document).on('click', 'a.desctoggle', function() {
