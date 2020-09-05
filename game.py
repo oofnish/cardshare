@@ -2,6 +2,7 @@ import random
 import string
 from player import PlayerData
 from deck import BasicCardDeck, BasicCard
+from random import shuffle
 
 GAME_KEY_LENGTH = 5
 
@@ -12,6 +13,7 @@ class BaseCardActions:
       approppriate for their own ruleset.  The base set provides only a very limited set of options.
     """
     DISCARD = 'discard'
+    TRADE = 'trade'
 
 
 class Game:
@@ -102,7 +104,7 @@ class Game:
 
         return card
 
-    def card_action(self, player_name: str, card_id: str, action: str):
+    def card_action(self, player_name: str, target_player: str, card_id: str, action: str):
         """
         Perform an action as the provided player on the specified card.  Subclasses should override this function to
             provide expanded card actions based on their rule set.  If the action is not understood, the player does not
@@ -111,6 +113,7 @@ class Game:
             formalized, and would provide better ability to add required parameters, such as 'target', and error
             handling interface
         :param player_name: The player performing the action
+        :param target_player: A player receiving the action
         :param card_id: The identifier for the card involved in the action
         :param action: a string declaring what action to peform.  This string should be in the BaseCardActions enum
         :return: None
@@ -120,6 +123,29 @@ class Game:
 
         if action == BaseCardActions.DISCARD:
             self.players[player_name].remove_card_by_id(card_id)
+        if action == BaseCardActions.TRADE:
+            hand, card = self.players[player_name].find_card(card_id)
+            if card is None or hand is None:
+                return
+            self.players[target_player].add_card_to_hand(hand, card)
+            self.players[player_name].remove_card_by_id(card_id)
+
+    def random_card(self, player_name: str, filter: str):
+        """
+        Search player's hand for a random card that matches the filter properties
+        :param player_name: player to query for cards
+        :param filter: filter to apply when searching for a card
+        :return: a card object or None if no cards are available
+        """
+
+        if player_name not in self.players:
+            return None
+        filter_rules = filter.split(';')
+        cards = self.players[player_name].get_cards(filter_rules)
+
+        shuffle(cards)
+
+        return cards[0]
 
     def player_draw_card(self, player_name, source_deck, dest_hand=None) -> BasicCard:
         """
