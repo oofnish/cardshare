@@ -33,6 +33,34 @@ class PlayerData:
             self.hand_names.append(hand_name)
         self.hand_cards[hand_name] = []
 
+    def find_card(self, card_id):
+        """Find a card by ID in the player's hands, returning the hand name and card if found"""
+        for h, cards in self.hand_cards.items():
+            for c in cards:
+                if c.cardid == card_id:
+                    return h, c
+        return None, None
+
+    def get_cards(self, filter_list):
+        """
+        Get all cards in an array based on the provided filter
+        :param filter: an array of filters to apply
+        :return: a list of cards matching the filter rules
+        """
+        hands = [h for h in self.hand_names]
+
+        for f in filter_list:
+            nv = f.split('=')
+            if nv[0] == 'hand':
+                if nv[1].startswith('-'):
+                    hands.remove(nv[1][1:])
+
+        cards = []
+        for h in hands:
+            cards.extend(self.hand_cards[h])
+
+        return cards
+
     def remove_card_by_id(self, card_id):
         """Remove a card id from a player's hand(s), no matter what hand it appears in, and no matter how many times it
             appears."""

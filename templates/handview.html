@@ -30,7 +30,16 @@
         background-color: #ffffff;
         box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
         border: 2px solid #6cc091;
+        min-width: 100px;
         z-index: 99;
+    }
+    .thin-style { display: none }
+    @media only screen and (max-width: 500px) {
+        .button.tiny {
+            max-width: 75px;
+        }
+        .thin-style { display: inline-block; }
+        .wide-style { display: none; }
     }
 
 </style>
@@ -63,6 +72,7 @@
 						<h2>{{ player.name }}</h2>
 						<p>GameID: {{  game.game_key }}</p>
 					</header>
+                    <a class="button tiny randobutton" style="max-width: 200px">Random Resource</a>
                     {% for deckname in game.card_decks.keys() %}
                     <div class="handdisplay">
                         <div class="row uniform" id="{{ deckname }}-label">
@@ -80,13 +90,13 @@
                                 </thead>
                                 <tbody>
                                     {% for card in player.hand_cards[deckname] %}
-                                    <tr>
+                                    <tr id="{{ card.cardid }}">
                                         <td>{{ card.name }}</td>
-                                        <td style="text-align: right; padding-right: 80px;">
-                                            <a class="button tiny desctoggle">Description</a> <a class="button tiny discard" id="{{ card.cardid }}">Discard</a>&nbsp;
+                                        <td style="text-align: right; padding-right: 80px;" class="cardentry">
+                                            <span class="wide-style"><a class="button tiny desctoggle">Description</a></span><span class="thin-style"><a class="button tiny desctoggle">Desc</a></span> <a class="button tiny discard">Discard</a>&nbsp;
                                             <div class="menu">
                                                 <a class="button tiny tradecard">Trade <i class="icon fa-caret-down"></i></a>
-                                                <div class="menu-content">Trade To:<br><a class="button tiny playerchoose">Player 1</a><br><a class="button tiny playerchoose">Player 2</a><br><a class="button tiny playerchoose">Player 3</a><br><a class="button tiny playerchoose">Player 4</a></div>
+                                                <div class="menu-content">Trade To:<br><a class="button tiny tradechooseplayer">Player 1</a><br><a class="button tiny tradechooseplayer">Player 2</a><br><a class="button tiny tradechooseplayer">Player 3</a><br><a class="button tiny tradechooseplayer">Player 4</a></div>
                                             </div>
                                             <p class="desc" style="margin-right: -60px;">{{ card.description }}</p>
                                         </td>
@@ -115,10 +125,10 @@
 			<script src="/static/assets/js/main.js"></script>
 			<script src="/static/assets/js/mustache.min.js"></script>
             <script id="card-row-template" type = "text/template">
-                <tr>
+                <tr id="||cardid||">
                     <td>||cardname||</td>
-                    <td style="text-align: right; padding-right: 80px;">
-                        <a class="button tiny desctoggle">Description</a> <a class="button tiny discard" id="||cardid||">Discard</a>&nbsp;
+                    <td style="text-align: right; padding-right: 80px;" class="cardentry">
+                        <span class="wide-style"><a class="button tiny desctoggle">Description</a></span><span class="thin-style"><a class="button tiny desctoggle">Desc</a></span> <a class="button tiny discard">Discard</a>&nbsp;
                         <div class="menu">
                             <a class="button tiny tradecard">Trade <i class="icon fa-caret-down"></i></a>
                             <div class="menu-content">Trade To:</div>
@@ -128,8 +138,9 @@
                 </tr>
             </script>
             <script id="player-list-template" type = "text/template">
+                Trade To:
                 ||#players||
-                <br><a class="button tiny playerchoose">||name||</a>
+                <br><a class="button tiny tradechooseplayer" id="||.||">||.||</a>
                 ||/players||
             </script>
 
@@ -141,22 +152,43 @@
                         $(this).closest(".row").next("div.table-wrapper").slideToggle();
                     });
                     $(document).on('click', 'a.desctoggle', function() {
-                        $(this).siblings("p.desc").slideToggle();
+                        $(this).closest("span").siblings("p.desc").slideToggle();
                     });
                     $(document).on('click', 'a.tradecard', function() {
                         var refobj = $(this);
-                        $.post("/queryplayers", data, function(respdata) {
-                            var templ = $("#player-list-template").html();
-                            var html = Mustache.render(templ, {players: respdata.player_name_list});
-                            $(refobj).next('.menu-content').append(html);
-                        });
+                        var data = {
+                            "exclude_self": true
+                        };
+                        if (!$(this).siblings("div.menu-content").is(":visible")) {
+                            $.post("/queryplayers", data, function (respdata) {
+                                var templ = $("#player-list-template").html();
+                                var html = Mustache.render(templ, {players: respdata.players});
+                                $(refobj).next('.menu-content').html(html);
+                            });
+                        }
                         $(this).siblings("div.menu-content").toggle();
+                    });
+                    $(document).on('click', 'a.tradechooseplayer', function() {
+                        var refobj = $(this);
+                        var cardcounter = $(this).closest("div.handdisplay").find("span.cardcounter")
+                        var data = {
+                            "cardid": $(this).closest("tr").attr("id"),
+                            "target_player": $(this).attr("id"),
+                            "action": 'trade'
+                        };
+                        $.post("/cardaction", data, function(respdata) {
+                            var cardcount = parseInt(cardcounter.text());
+                            cardcount--;
+                            cardcounter.text(cardcount);
+                            $(refobj).closest("tr").remove();
+                        });
+                        $(this).closest("div.menu-content").toggle();
                     });
                     $(document).on('click', 'a.discard', function() {
                         var refobj = $(this);
                         var cardcounter = $(this).closest("div.handdisplay").find("span.cardcounter")
                         var data = {
-                            "cardid": $(this).attr("id"),
+                            "cardid": $(this).closest("tr").attr("id"),
                             "action": 'discard'
                         };
                         $.post("/cardaction", data, function(respdata) {
@@ -176,7 +208,12 @@
                             cardcounter.text(cardcount);
                             var templ = $("#card-row-template").html()
                             var html = Mustache.render(templ, {cardname: respdata.name, cardid: respdata.cardid, carddescription: respdata.description });
-                            $(sel).find('tbody').append(html);
+                            $(sel).find('tbody').append(html);``
+                        });
+                    });
+                    $(document).on('click', 'a.randobutton', function() {
+                        $.post("/randomcard", {"filter": 'hand=-Development'}, function(respdata) {
+                            alert ('Random resource card is: ' + respdata.name)
                         });
                     });
                 });
